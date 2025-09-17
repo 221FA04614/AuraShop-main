@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Build and coverage
+dist/
+build/
+coverage/
+.nyc_output/
+
+# Caches
+.cache/
+.temp/
+.tmp/
+.eslintcache
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+

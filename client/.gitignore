@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Vite / React build outputs
+dist/
+build/
+coverage/
+
+# Caches
+.cache/
+.temp/
+.tmp/
+.eslintcache
+
+# Vite
+.vite/
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
