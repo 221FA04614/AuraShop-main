@@ -8,6 +8,9 @@ import CartPage from "./pages/CartPage.jsx";
 import CheckoutPage from "./pages/CheckoutPage.jsx";
 import OrdersPage from "./pages/OrdersPage.jsx";
 import AuthPage from "./pages/AuthPage.jsx";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage.jsx";
+import PaymentCancelPage from "./pages/PaymentCancelPage.jsx";
+import QuickCheckoutPage from "./pages/QuickCheckoutPage.jsx";
 import { CartProvider } from "./context/CartContext.jsx";
 import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
 import { useEffect } from "react";
@@ -56,6 +59,23 @@ export default function App() {
                     </PrivateRoute>
                   }
                 />
+                <Route
+                  path="/quick-checkout"
+                  element={
+                    <PrivateRoute>
+                      <QuickCheckoutPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/payment-success"
+                  element={
+                    <PrivateRoute>
+                      <PaymentSuccessPage />
+                    </PrivateRoute>
+                  }
+                />
+                <Route path="/payment-cancel" element={<PaymentCancelPage />} />
                 <Route
                   path="/orders"
                   element={
