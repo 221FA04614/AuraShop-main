@@ -5,7 +5,7 @@ import {
   handleWebhook,
   getOrderBySession
 } from '../controllers/paymentController.js';
-import { authMiddleware } from '../middleware/auth.js';
+import { authMiddleware } from '../controllers/authController.js';
 
 const router = express.Router();
 
