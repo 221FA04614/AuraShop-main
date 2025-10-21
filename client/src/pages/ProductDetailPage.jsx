@@ -66,6 +66,30 @@ export default function ProductDetailPage() {
     }
   };
 
+  const handleBuyNow = () => {
+    if (!selectedSize || !selectedColor) {
+      toast.error("Please select size and color");
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.error("Please sign in to continue");
+      navigate(`/auth?redirect=/product/${product._id}`);
+      return;
+    }
+
+    // Navigate to quick checkout with selected options
+    const params = new URLSearchParams({
+      productId: product._id,
+      quantity: quantity.toString(),
+      size: selectedSize,
+      color: selectedColor
+    });
+
+    navigate(`/quick-checkout?${params.toString()}`);
+  };
+
   if (isFetching || !product) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -177,18 +201,32 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
-          {/* Add to Cart */}
-          <button
-            onClick={handleAddToCart}
-            disabled={!product.inStock || isLoading}
-            className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors ${
-              product.inStock && !isLoading
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-          >
-            {isLoading ? "Adding..." : product.inStock ? "Add to Cart" : "Out of Stock"}
-          </button>
+          {/* Action Buttons - Add to Cart and Buy Now */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <button
+              onClick={handleAddToCart}
+              disabled={!product.inStock || isLoading}
+              className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors ${
+                product.inStock && !isLoading
+                  ? "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+            >
+              {isLoading ? "Adding..." : product.inStock ? "Add to Cart" : "Out of Stock"}
+            </button>
+
+            <button
+              onClick={handleBuyNow}
+              disabled={!product.inStock}
+              className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors ${
+                product.inStock
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+            >
+              {product.inStock ? "Buy Now" : "Out of Stock"}
+            </button>
+          </div>
 
           {/* Product Details */}
           <div className="border-t pt-6">
