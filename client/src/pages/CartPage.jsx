@@ -33,7 +33,7 @@ export default function CartPage() {
   }, []);
 
   const total = cartItems.reduce((sum, item) => {
-    return sum + (item.product?.price || 0) * item.quantity;
+    return sum + (item.productId?.price || 0) * item.quantity;
   }, 0);
 
   const handleQuantityChange = async (itemId, newQuantity) => {
@@ -101,19 +101,19 @@ export default function CartPage() {
             <div key={item._id} className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-center space-x-4">
                 <img
-                  src={item.product?.imageUrl}
-                  alt={item.product?.name}
+                  src={item.productId?.imageUrl}
+                  alt={item.productId?.name}
                   className="w-20 h-20 object-cover rounded-lg"
                 />
                 <div className="flex-1">
                   <h3 className="text-lg font-medium text-gray-900">
-                    {item.product?.name}
+                    {item.productId?.name}
                   </h3>
                   <p className="text-gray-600">
                     Size: {item.size} | Color: {item.color}
                   </p>
                   <p className="text-lg font-semibold text-gray-900">
-                    ${item.product?.price}
+                    ${item.productId?.price}
                   </p>
                 </div>
                 <div className="flex items-center space-x-3">
