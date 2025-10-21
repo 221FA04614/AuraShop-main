@@ -8,6 +8,6 @@ const CartSchema = new mongoose.Schema({
   color: { type: String, required: true },
 });
 
-CartSchema.index({ userId: 1, productId: 1 }, { unique: true });
+CartSchema.index({ userId: 1, productId: 1, size: 1, color: 1 }, { unique: true });
 
 export default mongoose.model('Cart', CartSchema);
