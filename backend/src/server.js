@@ -9,12 +9,18 @@ import productsRoutes from './routes/products.js';
 import cartRoutes from './routes/cart.js';
 import ordersRoutes from './routes/orders.js';
 import authRoutes from './routes/auth.js';
+import paymentRoutes from './routes/payment.js';
 import Product from './models/Product.js';
 
 const app = express();
 
-app.use(express.json());
 app.use(cors());
+
+// Raw body parser for Stripe webhook (must come before express.json())
+app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
+
+// JSON body parser for all other routes
+app.use(express.json());
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -82,6 +88,7 @@ app.use('/api/products', productsRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/payment', paymentRoutes);
 
 const PORT = process.env.PORT || 5000;
 
