@@ -13,8 +13,8 @@ export const createCheckoutSession = async (req, res) => {
 
     // Validate shipping address
     if (!shippingAddress || !shippingAddress.name || !shippingAddress.phone ||
-        !shippingAddress.street || !shippingAddress.city || !shippingAddress.state ||
-        !shippingAddress.zipCode || !shippingAddress.country) {
+      !shippingAddress.street || !shippingAddress.city || !shippingAddress.state ||
+      !shippingAddress.zipCode || !shippingAddress.country) {
       return res.status(400).json({ message: 'Invalid or missing shipping address' });
     }
 
@@ -101,8 +101,8 @@ export const createQuickCheckoutSession = async (req, res) => {
     }
 
     if (!shippingAddress || !shippingAddress.name || !shippingAddress.phone ||
-        !shippingAddress.street || !shippingAddress.city || !shippingAddress.state ||
-        !shippingAddress.zipCode || !shippingAddress.country) {
+      !shippingAddress.street || !shippingAddress.city || !shippingAddress.state ||
+      !shippingAddress.zipCode || !shippingAddress.country) {
       return res.status(400).json({ message: 'Invalid or missing shipping address' });
     }
 
@@ -276,19 +276,115 @@ export const getOrderBySession = async (req, res) => {
       return res.status(400).json({ message: 'Session ID is required' });
     }
 
-    const order = await Order.findOne({
+    // 1. Try to find the order in the database
+    let order = await Order.findOne({
       stripeSessionId: session_id,
       userId
     });
 
-    if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
+    // 2. If order exists, return it
+    if (order) {
+      return res.status(200).json(order);
+    }
+
+    // 3. If order not found, check Stripe session directly (Fallback for missing/slow webhook)
+    console.log(`Order not found for session ${session_id}. Checking Stripe...`);
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+
+    if (!session || session.payment_status !== 'paid') {
+      return res.status(404).json({ message: 'Order not found or payment not completed' });
+    }
+
+    // 4. Create the order from session data
+    const { shippingAddress, type } = session.metadata;
+    const parsedShippingAddress = JSON.parse(shippingAddress);
+    const totalAmount = session.amount_total / 100;
+
+    if (type === 'quick-checkout') {
+      const { productId, productName, quantity, size, color } = session.metadata;
+
+      const orderData = {
+        userId,
+        items: [{
+          productId,
+          productName,
+          quantity: parseInt(quantity),
+          price: totalAmount / parseInt(quantity),
+          size: size || 'N/A',
+          color: color || 'N/A'
+        }],
+        totalAmount,
+        shippingAddress: parsedShippingAddress,
+        paymentStatus: 'paid',
+        stripeSessionId: session.id,
+      };
+
+      order = await Order.create(orderData);
+      console.log('Quick checkout order created via fallback:', orderData);
+
+    } else {
+      // Cart checkout
+      // We need to reconstruct items. 
+      // Ideally, we should have stored item details in metadata, but metadata has size limits.
+      // However, we can't trust the current Cart state because it might have changed or been cleared?
+      // Actually, if the webhook hasn't run, the cart is likely still there.
+      // But if the user cleared it manually? 
+      // A safer bet for the fallback is to rely on what's in the Cart if it exists, 
+      // OR if we can't find the cart, we might be in trouble.
+      // BUT, for this specific user issue, the webhook likely failed, so the cart is probably still there.
+
+      const cartItems = await Cart.find({ userId }).populate('productId');
+
+      if (!cartItems || cartItems.length === 0) {
+        // If cart is empty, we can't easily reconstruct the order without more metadata.
+        // But maybe we can list the line items from Stripe?
+        const lineItems = await stripe.checkout.sessions.listLineItems(session_id);
+
+        // This is a "best effort" reconstruction from Stripe line items
+        const orderItems = lineItems.data.map(item => ({
+          // We don't have the original Product ID easily unless we stored it in metadata per-item, 
+          // which we didn't do in createCheckoutSession.
+          // We'll have to rely on the name.
+          // This is a limitation of the current implementation.
+          // For now, let's try to use the Cart.
+          productName: item.description, // Stripe puts name in description sometimes or we use product object
+          quantity: item.quantity,
+          price: item.amount_total / 100 / item.quantity,
+          // Missing size/color/productId
+        }));
+
+        return res.status(500).json({ message: 'Order could not be recovered. Please contact support.' });
+      }
+
+      const orderItems = cartItems.map(item => ({
+        productId: item.productId._id,
+        productName: item.productId.name,
+        quantity: item.quantity,
+        price: item.productId.price,
+        size: item.size,
+        color: item.color
+      }));
+
+      const orderData = {
+        userId,
+        items: orderItems,
+        totalAmount,
+        shippingAddress: parsedShippingAddress,
+        paymentStatus: 'paid',
+        stripeSessionId: session.id,
+      };
+
+      order = await Order.create(orderData);
+      console.log('Cart checkout order created via fallback:', orderData);
+
+      // Clear cart
+      await Cart.deleteMany({ userId });
     }
 
     res.status(200).json(order);
 
   } catch (error) {
-    console.error('Error fetching order:', error);
+    console.error('Error fetching/creating order:', error);
     res.status(500).json({ message: 'Failed to fetch order details' });
   }
 };

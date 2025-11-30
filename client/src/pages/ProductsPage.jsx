@@ -12,7 +12,7 @@ export default function ProductsPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const url = selectedCategory 
+        const url = selectedCategory
           ? `http://localhost:5000/api/products?category=${selectedCategory}`
           : "http://localhost:5000/api/products";
         const response = await axios.get(url);
@@ -30,7 +30,7 @@ export default function ProductsPage() {
         console.error("Failed to fetch categories:", error);
       }
     };
-    
+
     fetchProducts();
     fetchCategories();
   }, [selectedCategory]);
@@ -45,11 +45,10 @@ export default function ProductsPage() {
             <div className="space-y-2">
               <button
                 onClick={() => setSelectedCategory("")}
-                className={`block w-full text-left px-3 py-2 rounded-md transition-colors ${
-                  !selectedCategory 
-                    ? "bg-blue-100 text-blue-700" 
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
+                className={`block w-full text-left px-4 py-3 rounded-xl transition-all duration-200 font-medium ${!selectedCategory
+                    ? "bg-primary-50 text-primary-700 shadow-sm"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-primary-600"
+                  }`}
               >
                 All Products
               </button>
@@ -57,11 +56,10 @@ export default function ProductsPage() {
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`block w-full text-left px-3 py-2 rounded-md transition-colors ${
-                    selectedCategory.toLowerCase() === cat.toLowerCase()
-                      ? "bg-blue-100 text-blue-700"
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
+                  className={`block w-full text-left px-4 py-3 rounded-xl transition-all duration-200 font-medium capitalize ${selectedCategory.toLowerCase() === cat.toLowerCase()
+                      ? "bg-primary-50 text-primary-700 shadow-sm"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-primary-600"
+                    }`}
                 >
                   {cat}
                 </button>

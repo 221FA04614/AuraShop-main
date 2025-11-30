@@ -13,33 +13,36 @@ export default function ProductCard({ product }) {
 
   return (
     <>
-      <Link to={`/product/${product._id}`} className="group block">
-        <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-          <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden bg-gray-200">
+      <Link to={`/product/${product._id}`} className="group block h-full">
+        <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden h-full flex flex-col border border-gray-100">
+          <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden bg-gray-100 relative">
             <img
               src={product.imageUrl}
               alt={product.name}
-              className="h-64 w-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+              className="h-64 w-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
             />
-          </div>
-          <div className="p-4">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">{product.name}</h3>
-            <p className="text-sm text-gray-600 mb-2 line-clamp-2">{product.description}</p>
-            <div className="flex justify-between items-center mb-3">
-              <span className="text-xl font-bold text-gray-900">${product.price}</span>
-              <span className="text-sm text-gray-500">{product.category}</span>
-            </div>
             {!product.inStock && (
-              <span className="inline-block mb-2 px-2 py-1 text-xs bg-red-100 text-red-800 rounded">
+              <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                 Out of Stock
-              </span>
+              </div>
             )}
+          </div>
+          <div className="p-5 flex flex-col flex-grow">
+            <div className="flex justify-between items-start mb-2">
+              <h3 className="text-lg font-bold text-gray-900 line-clamp-1 group-hover:text-primary-600 transition-colors">{product.name}</h3>
+              <span className="text-lg font-bold text-primary-600">${product.price}</span>
+            </div>
+            <p className="text-sm text-gray-500 mb-4 line-clamp-2 flex-grow">{product.description}</p>
+
+            <div className="flex justify-between items-center mt-auto">
+              <span className="text-xs font-medium px-2 py-1 bg-gray-100 text-gray-600 rounded-full capitalize">{product.category}</span>
+            </div>
 
             {/* Buy Now Button */}
             {product.inStock && (
               <button
                 onClick={handleBuyNowClick}
-                className="w-full mt-2 py-2 px-4 bg-white border-2 border-blue-600 text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors"
+                className="w-full mt-4 py-2.5 px-4 bg-white border-2 border-primary-600 text-primary-600 rounded-xl font-semibold hover:bg-primary-600 hover:text-white transition-all duration-300 shadow-sm hover:shadow-md"
               >
                 Buy Now
               </button>
